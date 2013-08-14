@@ -3,8 +3,8 @@
 #
 #  $Id: Makefile 2132 2009-11-17 23:22:38Z brylow $
 
-PLATFORM = arm-qemu
-#PLATFORM = raspberry-pi
+# PLATFORM = arm-qemu
+PLATFORM = raspberry-pi
 
 DETAIL   = -DDETAIL
 
@@ -117,6 +117,18 @@ ${MKIMAGE}:
 
 docs:
 	${DOCGEN} ${DOCGEN_CONFIG}
+
+download:
+	scp xinu.bin bhimebau@cyclops:/home/tftpboot/kernel.img
+	ssh cyclops chmod go+r /home/tftpboot/kernel.img
+	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 off 1
+	sleep 1
+	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 on 1
+
+reset: 
+	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 off 1
+	sleep 1
+	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 on 1
 
 debug: 
 	$(MAKE) DEBUG="-DDEBUG ${BUGFLAG}"
