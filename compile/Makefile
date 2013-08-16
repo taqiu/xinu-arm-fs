@@ -5,13 +5,14 @@
 
 # PLATFORM = arm-qemu
 PLATFORM = raspberry-pi
+NODE = rpi1
+POWER_SWITCH = rpipower1.soic.indiana.edu
 
 DETAIL   = -DDETAIL
 
 include platforms/${PLATFORM}/platformVars
 
 CONFIG    = platforms/${PLATFORM}/xinu.conf
-
 KERNARC   = kernel.a
 MAIN_SRC  = ../system/main.c
 
@@ -121,16 +122,16 @@ docs:
 download:
 	scp xinu.bin bhimebau@cyclops:/home/tftpboot/kernel.img
 	ssh cyclops chmod go+r /home/tftpboot/kernel.img
-	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 off 1
+	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
 	sleep 1
-	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 on 1
+	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
 
-reset: 
-	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 off 1
+reset:
+	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
 	sleep 1
-	dlipower --hostname=rpipower1.soic.indiana.edu --user=admin --password=1234 --cycletime=1 on 1
+	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
 
-debug: 
+debug:
 	$(MAKE) DEBUG="-DDEBUG ${BUGFLAG}"
 
 libclean: ${LIBS:%=%-clean}
