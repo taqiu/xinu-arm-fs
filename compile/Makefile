@@ -120,8 +120,8 @@ docs:
 	${DOCGEN} ${DOCGEN_CONFIG}
 
 download:
-	scp xinu.bin bhimebau@cyclops:/home/tftpboot/kernel.img
-	ssh cyclops chmod go+r /home/tftpboot/kernel.img
+	scp xinu.bin bhimebau@cyclops:/home/tftpboot/${NODE}.img
+	ssh cyclops chmod go+r /home/tftpboot/${NODE}.img
 	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
 	sleep 1
 	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
