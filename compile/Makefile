@@ -5,8 +5,8 @@
 
 # PLATFORM = arm-qemu
 PLATFORM = raspberry-pi
-NODE = rpi1
-POWER_SWITCH = rpipower1.soic.indiana.edu
+NODE=7
+POWER_SWITCH=rpipower1.soic.indiana.edu
 
 DETAIL   = -DDETAIL
 
@@ -120,16 +120,16 @@ docs:
 	${DOCGEN} ${DOCGEN_CONFIG}
 
 download:
-	scp xinu.bin bhimebau@cyclops:/home/tftpboot/${NODE}.img
-	ssh cyclops chmod go+r /home/tftpboot/${NODE}.img
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
+	scp xinu.bin bhimebau@cyclops:/home/tftpboot/rpi${NODE}.img
+	ssh cyclops chmod go+rw /home/tftpboot/rpi${NODE}.img
+	dlipower --hostname=${POWER_SWITCH} --user=rpi${NODE} --password=p436power --cycletime=1 off ${NODE}
 	sleep 1
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
+	dlipower --hostname=${POWER_SWITCH} --user=rpi${NODE} --password=p436power --cycletime=1 on ${NODE}
 
 reset:
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
+	dlipower --hostname=${POWER_SWITCH} --user=rpi${NODE} --password=p436power --cycletime=1 off ${NODE}
 	sleep 1
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
+	dlipower --hostname=${POWER_SWITCH} --user=rpi${NODE} --password=p436power --cycletime=1 on ${NODE}
 
 debug:
 	$(MAKE) DEBUG="-DDEBUG ${BUGFLAG}"
