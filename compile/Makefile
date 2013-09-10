@@ -7,6 +7,7 @@
 PLATFORM = raspberry-pi
 NODE=7
 POWER_SWITCH=rpipower1.soic.indiana.edu
+USERNAME=bhimebau
 
 DETAIL   = -DDETAIL
 
@@ -120,7 +121,7 @@ docs:
 	${DOCGEN} ${DOCGEN_CONFIG}
 
 download:
-	scp xinu.bin bhimebau@cyclops:/home/tftpboot/rpi${NODE}.img
+	scp xinu.bin ${USERNAME}@cyclops:/home/tftpboot/rpi${NODE}.img
 	ssh cyclops chmod go+rw /home/tftpboot/rpi${NODE}.img
 	dlipower --hostname=${POWER_SWITCH} --user=rpi${NODE} --password=p436power --cycletime=1 off ${NODE}
 	sleep 1
