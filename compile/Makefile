@@ -119,7 +119,7 @@ docs:
 	${DOCGEN} ${DOCGEN_CONFIG}
 
 download:
-	scp xinu.bin bhimebau@cyclops:/home/tftpboot/rpi${NODE}.img
+	scp xinu.bin ${USERNAME}@cyclops:/home/tftpboot/rpi${NODE}.img
 	ssh cyclops chmod go+rw /home/tftpboot/rpi${NODE}.img
 	rpipower off ${NODE}
 	sleep 1
