@@ -5,8 +5,7 @@
 
 # PLATFORM = arm-qemu
 PLATFORM = raspberry-pi
-NODE = rpi9
-POWER_SWITCH = rpipower2.soic.indiana.edu
+NODE=17
 
 DETAIL   = -DDETAIL
 
@@ -120,17 +119,15 @@ docs:
 	${DOCGEN} ${DOCGEN_CONFIG}
 
 download:
-	scp xinu.bin bhimebau@cyclops:/home/tftpboot/${NODE}.img
-	ssh cyclops chmod go+r /home/tftpboot/${NODE}.img
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
+	scp xinu.bin bhimebau@cyclops:/home/tftpboot/rpi${NODE}.img
+	ssh cyclops chmod go+rw /home/tftpboot/rpi${NODE}.img
+	rpipower off ${NODE}
 	sleep 1
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
-
+	rpipower on ${NODE}
 reset:
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 off 1
+	rpipower off ${NODE}
 	sleep 1
-	dlipower --hostname=${POWER_SWITCH} --user=${NODE} --password=p436power --cycletime=1 on 1
-
+	rpipower on ${NODE}
 debug:
 	$(MAKE) DEBUG="-DDEBUG ${BUGFLAG}"
 
