@@ -6,6 +6,7 @@
 # PLATFORM = arm-qemu
 PLATFORM = raspberry-pi
 NODE=17
+USERNAME=bhimebau
 
 DETAIL   = -DDETAIL
 
