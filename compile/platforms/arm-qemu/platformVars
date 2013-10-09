@@ -40,7 +40,7 @@ BUGFLAG = -gstabs+
 CFLAGS = -O0 -Wall -Wstrict-prototypes -Wno-trigraphs    \
        -nostdinc -fno-builtin -fno-strict-aliasing -fno-common \
         -fomit-frame-pointer -fno-pic -ffunction-sections \
-        ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c
+        ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c -g
 
 # Assembler flags
 ASFLAGS  = ${INCLUDE} ${DEBUG}

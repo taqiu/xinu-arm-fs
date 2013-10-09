@@ -4,7 +4,9 @@
 #  $Id: Makefile 2132 2009-11-17 23:22:38Z brylow $
 
 # PLATFORM = arm-qemu
-PLATFORM = raspberry-pi
+# PLATFORM = raspberry-pi
+PLATFORM = arm-qemu
+
 NODE=17
 USERNAME=bhimebau
 
@@ -175,5 +177,9 @@ ${LIB_ARC}: ${COMP_OBJ}
 
 ${LIBS:%=%-clean}:
 	$(MAKE) -C ${LIBDIR}/${@:%-clean=%} clean
+
+test:
+	qemu-system-arm -M versatilepb -m 128M -nographic -cpu arm926 -kernel xinu.bin -S -gdb tcp::5556
+
 
 include .deps
