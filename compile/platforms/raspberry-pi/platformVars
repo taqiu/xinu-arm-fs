@@ -37,13 +37,13 @@ INCLUDE  = -I../include -I../system/platforms/${PLATFORM}
 BUGFLAG = -gstabs+
 
 # C compilation flags
-CFLAGS = -O0 -Wall -Wstrict-prototypes -Wno-trigraphs    \
+CFLAGS = -O0 -Wall -Wstrict-prototypes -Wno-trigraphs  -g  \
        -nostdinc -fno-builtin -fno-strict-aliasing -fno-common \
         -fomit-frame-pointer -fno-pic -ffunction-sections \
         ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c
 
 # Assembler flags
-ASFLAGS  = ${INCLUDE} ${DEBUG}
+ASFLAGS  = ${INCLUDE} ${DEBUG} -g
 
 # Loader flags
 LDFLAGS   = -static --gc-sections -Map xinu.map -T platforms/${PLATFORM}/ld.script # $(LIBGCC)
