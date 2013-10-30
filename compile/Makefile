@@ -179,7 +179,7 @@ ${LIBS:%=%-clean}:
 	$(MAKE) -C ${LIBDIR}/${@:%-clean=%} clean
 
 test:
-	qemu-system-arm -M versatilepb -m 128M -nographic -cpu arm926 -kernel xinu.bin -S -gdb tcp::5556
+	qemu-system-arm -M versatilepb -m 128M -nographic -cpu arm1176  -kernel xinu.bin -S -gdb tcp::5556
 
 
 include .deps
