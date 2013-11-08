@@ -3,11 +3,11 @@
 #
 #  $Id: Makefile 2132 2009-11-17 23:22:38Z brylow $
 
-# PLATFORM = arm-qemu
-PLATFORM = raspberry-pi
+PLATFORM = arm-qemu
+# PLATFORM = raspberry-pi
 # PLATFORM = arm-qemu
 
-NODE=17
+NODE=31
 USERNAME=bhimebau
 
 DETAIL   = -DDETAIL
@@ -179,7 +179,10 @@ ${LIBS:%=%-clean}:
 	$(MAKE) -C ${LIBDIR}/${@:%-clean=%} clean
 
 test:
-	qemu-system-arm -M versatilepb -m 128M -nographic -cpu arm1176  -kernel xinu.bin -S -gdb tcp::5556
+	qemu-system-arm -M versatilepb -m 128M -nographic -cpu arm1176 -kernel xinu.bin -S -gdb tcp::5556
 
+
+etags:
+	find .. -type f -iname "*.[ch]" | xargs etags --append
 
 include .deps

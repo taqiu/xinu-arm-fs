@@ -91,7 +91,6 @@ int in_interrupt( void )
     return vic_in_interrupt();
 }
 
-
 /**
  * Example of how to correctly define an IRQ handler,
  *  from the  firmware.
