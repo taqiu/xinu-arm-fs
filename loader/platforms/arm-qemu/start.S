@@ -77,26 +77,25 @@ unused_handler: .word   UNDEF_Routine
 Reset_Handler:  
 		/* Setup a stack for each mode - note that this only sets up a usable stack
 		for User mode.   Also each mode is setup with interrupts initially disabled. */
-    			  
-		ldr   r0, =_end
-                add r0, r0, #UND_STACK_SIZE
-   		msr   CPSR_c, #MODE_UND|I_BIT|F_BIT 	/* Undefined Instruction Mode  */
-    		mov   sp, r0
-    		add   r0, r0, #ABT_STACK_SIZE
-    		msr   CPSR_c, #MODE_ABT|I_BIT|F_BIT 	/* Abort Mode */
-    		mov   sp, r0
-    		add   r0, r0, #FIQ_STACK_SIZE
-    		msr   CPSR_c, #MODE_FIQ|I_BIT|F_BIT 	/* FIQ Mode */
-    		mov   sp, r0	
-   		add   r0, r0, #IRQ_STACK_SIZE
-    		msr   CPSR_c, #MODE_IRQ|I_BIT|F_BIT 	/* IRQ Mode */
-    		mov   sp, r0
-    		add   r0, r0, #SVC_STACK_SIZE
-    		msr   CPSR_c, #MODE_SVC|I_BIT|F_BIT 	/* Supervisor Mode */
-    		mov   sp, r0
-    		add   r0, r0, #SYS_STACK_SIZE
-    		msr   CPSR_c, #MODE_SYS|I_BIT|F_BIT 	/* User Mode */
-    		mov   sp, r0
+	ldr   r0, =_end
+        add r0, r0, #UND_STACK_SIZE
+   	msr   CPSR_c, #MODE_UND|I_BIT|F_BIT 	/* Undefined Instruction Mode  */
+    	mov   sp, r0
+    	add   r0, r0, #ABT_STACK_SIZE
+    	msr   CPSR_c, #MODE_ABT|I_BIT|F_BIT 	/* Abort Mode */
+    	mov   sp, r0
+    	add   r0, r0, #FIQ_STACK_SIZE
+    	msr   CPSR_c, #MODE_FIQ|I_BIT|F_BIT 	/* FIQ Mode */
+    	mov   sp, r0	
+   	add   r0, r0, #IRQ_STACK_SIZE
+    	msr   CPSR_c, #MODE_IRQ|I_BIT|F_BIT 	/* IRQ Mode */
+    	mov   sp, r0
+    	add   r0, r0, #SVC_STACK_SIZE
+    	msr   CPSR_c, #MODE_SVC|I_BIT|F_BIT 	/* Supervisor Mode */
+    	mov   sp, r0
+    	add   r0, r0, #SYS_STACK_SIZE
+    	msr   CPSR_c, #MODE_SYS|I_BIT|F_BIT 	/* User Mode */
+    	mov   sp, r0
 
 /* TEB TODO: This will need to be revisted when we get a real memory map */
 		/* Copy .data section (Copy from ROM to RAM) */
@@ -112,29 +111,41 @@ Reset_Handler:
 
 /* relocate exception vectors */
 /* http://www.redacom.ch/software/arm_keil/docs_infopage/documents/arm_information/rvct_developer_guide.pdf */
-                MOV        r8, #0
-                ADR        r9, _vectors
-                LDMIA      r9!,{r0-r7}           /* Copy the vectors (8 words) */
-                STMIA      r8!,{r0-r7}
-                LDMIA      r9!,{r0-r7}           /* Copy the DCD'ed addresses*/
-                STMIA      r8!,{r0-r7}           /* (8 words again) */
+        MOV        r8, #0
+        ADR        r9, _vectors
+        LDMIA      r9!,{r0-r7}           /* Copy the vectors (8 words) */
+        STMIA      r8!,{r0-r7}
+        LDMIA      r9!,{r0-r7}           /* Copy the DCD'ed addresses*/
+        STMIA      r8!,{r0-r7}           /* (8 words again) */
 
 
-		/* Clear .bss section (Zero init)  */
-                mov     R0, #0
-                ldr     R1, =_bss
-                ldr     R2, =_end
-2:		cmp     R1, R2
-                strlo   R0, [R1], #4
-                blo     2b
+	/* Clear .bss section (Zero init)  */
+        mov     R0, #0
+        ldr     R1, =_bss
+        ldr     R2, =_end
+2:	cmp     R1, R2
+        strlo   R0, [R1], #4
+        blo     2b
 
-        mov r0, sp
+/*	b 	mmu_setup*/
+	
+gostart:
+	mov r0, sp
         add r0, r0, #8
         ldr r1, =memheap
         str r0, [r1]
 
-		/* Enter the C code  */
-                b       _startup
+	/* Enter the C code  */
+	b       _startup
+
+
+/* mmu_setup:
+	
+
+	add r4, r4, r5
+	b 	gostart
+*/
+	
 
 .type panic_no_isr, %function
 /*

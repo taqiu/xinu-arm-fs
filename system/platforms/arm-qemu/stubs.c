@@ -71,6 +71,6 @@ void _startup( void )
 
   // usleep(1000);
 #endif /* NDEVS && SERIAL1 */
-
+    setup_mmu();
     nulluser();
 }

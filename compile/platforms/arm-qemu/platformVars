@@ -43,7 +43,7 @@ CFLAGS = -O0 -Wall -Wstrict-prototypes -Wno-trigraphs    \
         ${DEBUG} ${INCLUDE} ${DETAIL} ${DEFS} -c -g
 
 # Assembler flags
-ASFLAGS  = ${INCLUDE} ${DEBUG}
+ASFLAGS  = ${INCLUDE} ${DEBUG} -g
 
 # Loader flags
 LDFLAGS   = -static --gc-sections -Map xinu.map -T platforms/${PLATFORM}/ld.script # $(LIBGCC)
