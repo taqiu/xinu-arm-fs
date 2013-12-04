@@ -2,11 +2,18 @@
 # Make the Xinu configuration program
 #
 
+OS:=$(shell uname | sed 's/[-_].*//')
+
 CC     = gcc
 LEX    = flex
 YACC   = bison -y    # Flag enables yacc-compatible filenames
 CFLAGS = 
-LFLAGS = -lfl
+
+ifeq ($(OS),Darwin)
+LFLAGS=-ll
+else
+LFLAGS=-lfl
+endif
 
 CONFIG = config
 
