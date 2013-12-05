@@ -34,6 +34,9 @@ const struct centry commandtab[] = {
 #if NFLASH
     {"flashstat", FALSE, xsh_flashstat},
 #endif
+#if FS
+    {"fstest", FALSE, xsh_fstest},
+#endif    
 #ifdef GPIO_BASE
     {"gpiostat", FALSE, xsh_gpiostat},
 #endif
