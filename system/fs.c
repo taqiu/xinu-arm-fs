@@ -89,12 +89,11 @@ int mkfs(int dev, int num_inodes) {
     /* write inodes to filesystem */ 
     for (i=0; i<num_inodes; i++) {
         in.id = i;
-        in.type = 0;
         in.nlink = 0;
         in.device = dev0;
         in.size = 0;
         for (j=0; j<FILEBLOCKS; j++) {
-            in.block[j] = 0;
+            in.blocks[j] = 0;
         }
         put_inode_by_num(dev0, i, &in);
     }
@@ -103,27 +102,30 @@ int mkfs(int dev, int num_inodes) {
 }
 
 int get_inode_by_num(int dev, int inode_number, struct inode *in) {
-    
-    if (dev != 0) {
-        printf("Unsupported device\n");
-        return SYSERR;
+    int len = sizeof(struct inode);
+    if (bread(dev, INODE_BLOCK, len * inode_number, in, len) == SYSERR) {
+        printf("Can not read inode\n");
     }
-
-    memcpy(in, , sizeof(struct inode));
 
     return OK;
 }
 
 int put_inode_by_num(int dev, int inode_number, struct inode *in) {
-    
-    if (dev != 0) {
-        printf("Unsupported device\n");
-        return SYSERR;
+    int len = sizeof(struct inode);
+    if (bwrite(dev, INODE_BLOCK, len * inode_number, in, len) == SYSERR) {
+        printf("Can not read inode\n");
     }
-
-    memcpy(, in, sizeof(struct inode));
-
     return OK;
+}
+
+void print_inodes() {
+    struct inode node;
+    int i;
+    for (i = 0; i < 16; i ++) {
+        node.id = 1;
+        get_inode_by_num(0, i, &node);
+        printf("%d inode id: %d line: %d sinze: %d\n",i ,node.id, node.nlink, node.size);
+    }
 }
 
 int 

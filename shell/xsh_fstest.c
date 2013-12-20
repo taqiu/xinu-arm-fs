@@ -50,9 +50,9 @@ shellcmd xsh_fstest(int nargs, char *args[])
 
 #ifdef FS
     mkbsdev(0, 0, 0); /* device "0" and default blocksize (=0) and count */
-    mkfs(0); /* bsdev 0*/
+    mkfs(0, DIRECTORY_SIZE); /* bsdev 0*/
     //testbitmask();
-
+    print_inodes(); // Test
 #else
     printf("No filesystem support\n");
 #endif

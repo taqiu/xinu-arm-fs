@@ -8,6 +8,8 @@
 #define MDEV_BLOCK_SIZE 512
 #define MDEV_NUM_BLOCKS 512
 
+#define INODE_BLOCK 2
+
 struct inode {
   int id;
   int device;
@@ -48,7 +50,7 @@ int fread(int fd, void *buf, int nbytes);
 int fwrite(int fd, void *buf, int nbytes);
 
 /* filesystem functions */
-int mkfs(int dev);
+int mkfs(int dev, int num_inodes);
 int mount(int dev);
 
 /*
@@ -66,5 +68,8 @@ int setmaskbit(int b);
 int getmaskbit(int b);
 int get_inode_by_num(int dev, int inode_number, struct inode *in);
 int put_inode_by_num(int dev, int inode_number, struct inode *in);
+
+/* test functions*/
+void print_inodes();
 
 #endif /* FS_H */
