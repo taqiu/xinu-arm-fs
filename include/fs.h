@@ -14,9 +14,8 @@
 #define MAX_OPEN_FILE_NUM 16
 
 #define N_FILE -1
-#define O_RDONLY 1
-#define O_WRONLY 2
-#define O_RDWR 3
+#define O_READ 1
+#define O_WRITE 2
 
 struct inode {
   int id;
