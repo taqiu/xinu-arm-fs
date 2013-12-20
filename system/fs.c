@@ -7,6 +7,8 @@
 #if FS
 #include <fs.h>
 
+#define valid_fd(x) ((x >= 0) && (x <= MAX_OPEN_FILE_NUM))
+
 static struct fsystem fsd;
 int dev0_numblocks;
 int dev0_blocksize;
@@ -131,7 +133,7 @@ int put_inode_by_num(int dev, int inode_number, struct inode *in) {
 }
 
 int mount(int dev) {
-    int bm_blk = 0;
+    int i, bm_blk = 0;
     if (dev != 0) {
         printf("Unsupported device\n");
         return SYSERR;
@@ -145,6 +147,10 @@ int mount(int dev) {
     if (bread(dev0, bm_blk+1, 0, fsd.freemask, fsd.freemaskbytes) == SYSERR) {
         printf("Can not read bit map\n");
         return SYSERR;
+    }
+
+    for (i = 0; i < MAX_OPEN_FILE_NUM; i ++) {
+        filelist[i].state = N_FILE;
     }
     return OK;
 }
@@ -197,7 +203,7 @@ int fopen(char *filename, int flags) {
     for (i = 0; i < DIRECTORY_SIZE; i ++) {
         if (strcmp(fsd.root_dir.entry[i].name, filename) == 0) {
             for (j = 0; j < MAX_OPEN_FILE_NUM; j ++) {
-                if (filelist[j].state == -1) {
+                if (filelist[j].state == N_FILE) {
                     break;
                 }
             }
@@ -210,11 +216,26 @@ int fopen(char *filename, int flags) {
                 return SYSERR;
             }
             filelist[j].state = flags;
+            filelist[j].fptr = 0;
             return j;
         }
     }
     printf("Can not find the file\n");
     return SYSERR;
+}
+
+int fclose(int fd) {
+    if (!valid_fd(fd)) {
+        printf("Invalid file identifier\n");
+        return SYSERR;
+    }
+    filelist[fd].state = N_FILE;
+    filelist[fd].fptr = 0;
+    if (put_inode_by_num(0, filelist[fd].in.id, &filelist[fd].in) == SYSERR) {
+        printf("Can not update inode\n");
+        return SYSERR;
+    }
+    return OK;
 }
 
 void print_inodes() {
