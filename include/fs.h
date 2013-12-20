@@ -76,7 +76,8 @@ int getmaskbit(int b);
 int get_inode_by_num(int dev, int inode_number, struct inode *in);
 int put_inode_by_num(int dev, int inode_number, struct inode *in);
 
-/* test functions*/
+/* test & help functions*/
 void print_inodes();
+int get_free_block();
 
 #endif /* FS_H */

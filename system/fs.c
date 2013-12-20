@@ -273,7 +273,7 @@ int fread(int fd, void *buff, int nbytes) {
         printf("File is not open\n");
         return SYSERR;
     }
-    if (filelist[fd].state & O_READ != O_READ) {
+    if ((filelist[fd].state & O_READ != O_READ)) {
         printf("File opened without read permission\n");
         return SYSERR;
     }
@@ -284,8 +284,8 @@ int fread(int fd, void *buff, int nbytes) {
     // Start to read
     s_ptr = filelist[fd].fptr;
     e_ptr = filelist[fd].fptr + nbytes;
-    s_index = filelist[fd].fptr / fsd.blocksz;
-    e_index = (filelist[fd].fptr + nbytes) / fsd.blocksz;
+    s_index = s_ptr / fsd.blocksz;
+    e_index = e_ptr / fsd.blocksz;
     bufptr = 0;
     for (i = s_index; i <= e_index; i ++) {
         offset = filelist[fd].fptr % fsd.blocksz;
@@ -300,6 +300,62 @@ int fread(int fd, void *buff, int nbytes) {
     }
 
     return OK;
+}
+
+int fwrite(int fd, void *buf, int nbytes) {
+    int s_ptr, e_ptr, s_index, e_index, i;
+    int offset, len, bufptr, bptr;
+    if (!valid_fd(fd)) {
+        printf("Invalid file indentifier\n");
+        return SYSERR;
+    }
+    if (filelist[fd].state == N_FILE) {
+        printf("File is not open\n");
+        return SYSERR;
+    }
+    if ((filelist[fd].state & O_WRITE != O_WRITE)) {
+        printf("File opened withour write permission\n");
+        return SYSERR;
+    }
+    // Start to write
+    s_ptr = filelist[fd].fptr;
+    e_ptr = filelist[fd].fptr + nbytes;
+    s_index = s_ptr / fsd.blocksz;
+    e_index = e_ptr / fsd.blocksz;
+    bufptr = 0;
+    for (i = s_index; i <= e_index; i ++) {
+        offset = filelist[fd].fptr % fsd.blocksz;
+        if (i == e_index) len = e_ptr - offset;
+        else len = fsd.blocksz - offset;
+        if (i < filelist[fd].in.size) {
+            // Overwrite
+            if (bwrite(0, filelist[fd].in.blocks[i], offset, buf + bufptr, len) == SYSERR) {
+                printf("Failed to write block %d\n", filelist[fd].in.blocks[i]);
+                return SYSERR;
+            }
+            filelist[fd].fptr += len;
+            bufptr += len;
+        } else {
+            bptr = get_free_block();
+            if (bwrite(0, bptr, offset, buf + bufptr, len) == SYSERR) {
+                printf("Failed to write block %d\n", bptr);
+                return SYSERR;
+            }
+            filelist[fd].fptr += len;
+            bufptr += len;
+            setmaskbit(bptr);
+            filelist[fd].in.blocks[filelist[fd].in.size] = bptr;
+            filelist[fd].in.size ++;
+        }
+    }
+}
+
+int get_free_block() {
+    int i;
+    for (i = 0; i < fsd.blocks; i ++) {
+        if (getmaskbit(i) == 1) return i;
+    }
+    return SYSERR;
 }
 
 void print_inodes() {
