@@ -47,8 +47,9 @@ int seek(int fd, int offset);
 int fread(int fd, void *buf, int nbytes);
 int fwrite(int fd, void *buf, int nbytes);
 
-
+/* filesystem functions */
 int mkfs(int dev);
+int mount(int dev);
 
 /*
   Block Store
@@ -63,5 +64,7 @@ int bwrite(int bsdev, int block, int offset, void * buf, int len);
 void printfreemask(void);
 int setmaskbit(int b);
 int getmaskbit(int b);
+int get_inode_by_num(int dev, int inode_number, struct inode *in);
+int put_inode_by_num(int dev, int inode_number, struct inode *in);
 
 #endif /* FS_H */

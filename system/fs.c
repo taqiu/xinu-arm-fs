@@ -34,7 +34,7 @@ int mkbsdev(int dev, int blocksize, int numblocks) {
     dev0_numblocks =  MDEV_NUM_BLOCKS;
   }
 
-  if ( (dev0_blocks = memget(dev0_numblocks * dev0_blocksize)) == SYSERR) {
+  if ((dev0_blocks = memget(dev0_numblocks * dev0_blocksize)) == SYSERR) {
     printf("mkbsdev memgetfailed\n");
     return SYSERR;
   }
@@ -43,42 +43,87 @@ int mkbsdev(int dev, int blocksize, int numblocks) {
 
 }
 
-int mkfs(int dev) {
-  int i;
-  int bm_blk = 0;
+int mkfs(int dev, int num_inodes) {
+    int i, j;
+    int bm_blk = 0;
+    struct inode *inodes;
+    struct inode in;
   
-  if (dev == 0) {
-    fsd.blocks = dev0_numblocks;
-    fsd.blocksz = dev0_blocksize;
-  }
-  else {
-    printf("Unsupported device\n");
-    return SYSERR;
-  }
+    if (dev == 0) {
+        fsd.blocks = dev0_numblocks;
+        fsd.blocksz = dev0_blocksize;
+    }
+    else {
+        printf("Unsupported device\n");
+        return SYSERR;
+    }
 
- i = fsd.blocks;
- while ( (i % 8) != 0) {i++;}
- fsd.freemaskbytes = i / 8; 
+    i = fsd.blocks;
+    while ( (i % 8) != 0) {i++;}
+    fsd.freemaskbytes = i / 8; 
 
- if ((fsd.freemask = memget(fsd.freemaskbytes)) == SYSERR) {
-   printf("mkfs memget failed.\n");
-   return SYSERR;
- }
+    if ((fsd.freemask = memget(fsd.freemaskbytes)) == SYSERR) {
+        printf("mkfs memget failed.\n");
+        return SYSERR;
+    }
 
- /* zero the free mask */
- for(i=0;i<fsd.freemaskbytes;i++) {
-   fsd.freemask[i] = '\0';
- }
+    /* zero the free mask */
+    for(i=0;i<fsd.freemaskbytes;i++) {
+        fsd.freemask[i] = '\0';
+    }
 
- /* write the fsystem block to block 0, mark block used */
- setmaskbit(0);
- bwrite(dev0, bm_blk, 0, &fsd, sizeof(struct fsystem));
+    if ((inodes = memget(num_inodes*sizeof(struct inode))) == SYSERR) {
+        printf("mkfs inode memget failed.\n");
+        return SYSERR;
+    }    
 
- /* write the freemask in block 0, mark block used */
- setmaskbit(1);
- bwrite(dev0, bm_blk, 0, fsd.freemask, fsd.freemaskbytes);
- 
- return 1;
+    /* write the fsystem block to block 0, mark block used */
+    setmaskbit(0);
+    bwrite(dev0, bm_blk, 0, &fsd, sizeof(struct fsystem));
+
+    /* write the freemask in block 1, mark block used */
+    setmaskbit(1);
+    bwrite(dev0, bm_blk+1, 0, fsd.freemask, fsd.freemaskbytes);
+
+   
+    /* write inodes to filesystem */ 
+    for (i=0; i<num_inodes; i++) {
+        in.id = i;
+        in.type = 0;
+        in.nlink = 0;
+        in.device = dev0;
+        in.size = 0;
+        for (j=0; j<FILEBLOCKS; j++) {
+            in.block[j] = 0;
+        }
+        put_inode_by_num(dev0, i, &in);
+    }
+
+    return OK;
+}
+
+int get_inode_by_num(int dev, int inode_number, struct inode *in) {
+    
+    if (dev != 0) {
+        printf("Unsupported device\n");
+        return SYSERR;
+    }
+
+    memcpy(in, , sizeof(struct inode));
+
+    return OK;
+}
+
+int put_inode_by_num(int dev, int inode_number, struct inode *in) {
+    
+    if (dev != 0) {
+        printf("Unsupported device\n");
+        return SYSERR;
+    }
+
+    memcpy(, in, sizeof(struct inode));
+
+    return OK;
 }
 
 int 
@@ -99,7 +144,6 @@ bread(int dev, int block, int offset, void *buf, int len) {
   memcpy(buf, (bbase+offset), len);
 
   return OK;
-
 }
 
 
@@ -121,7 +165,6 @@ bwrite(int dev, int block, int offset, void * buf, int len) {
   memcpy((bbase+offset), buf, len);
   
   return OK;
-
 }
 
 

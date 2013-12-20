@@ -7,8 +7,8 @@ PLATFORM = arm-qemu
 #PLATFORM = raspberry-pi
 # PLATFORM = arm-qemu
 
-NODE=17
-USERNAME=bhimebau
+NODE=15
+USERNAME=caotia
 
 DETAIL   = -DDETAIL
 
