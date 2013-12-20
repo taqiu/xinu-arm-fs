@@ -229,12 +229,36 @@ int fclose(int fd) {
         printf("Invalid file identifier\n");
         return SYSERR;
     }
+    if (filelist[fd].state == N_FILE) {
+        printf("File is not open\n");
+        return SYSERR;
+    }
     filelist[fd].state = N_FILE;
     filelist[fd].fptr = 0;
     if (put_inode_by_num(0, filelist[fd].in.id, &filelist[fd].in) == SYSERR) {
         printf("Can not update inode\n");
         return SYSERR;
     }
+    return OK;
+}
+
+int fseek(int fd, int offset) {
+    int file_size, tmptr;
+    if (!valid_fd(fd)) {
+        printf("Invalid file identifier\n");
+        return SYSERR;
+    }
+    if (filelist[fd].state == N_FILE) {
+        printf("File is not open\n");
+        return SYSERR;
+    }
+    file_size = filelist[fd].in.size * fsd.blocksz;
+    tmptr = filelist[fd].fptr + offset;
+    if (tmptr < 0 || tmptr > file_size) {
+        printf("Invalid offset\n");
+        return SYSERR;
+    }
+    filelist[fd].fptr = tmptr;
     return OK;
 }
 
