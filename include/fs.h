@@ -13,6 +13,10 @@
 #define INODE_SIZE 16
 #define MAX_OPEN_FILE_NUM 16
 
+#define O_RDONLY 1
+#define O_WRONLY 2
+#define O_RDWR 3
+
 struct inode {
   int id;
   int device;

@@ -12,7 +12,7 @@ int dev0_numblocks;
 int dev0_blocksize;
 char *dev0_blocks;
 int dev0 = 0;
-struct fdesc filelist[];
+struct fdesc filelist[MAX_OPEN_FILE_NUM];
 
 int mkbsdev(int dev, int blocksize, int numblocks) {
 
@@ -193,10 +193,24 @@ int fcreate(char *filename, int mode) {
 }
 
 int fopen(char *filename, int flags) {
-    int i;
-    for (i = 0; i < DERECTORY_SIZE; i ++) {
+    int i, j;
+    for (i = 0; i < DIRECTORY_SIZE; i ++) {
         if (strcmp(fsd.root_dir.entry[i].name, filename) == 0) {
-            return fsd.root_dir.entry[i].inode_num;
+            for (j = 0; j < MAX_OPEN_FILE_NUM; j ++) {
+                if (filelist[j].state == -1) {
+                    break;
+                }
+            }
+            if (j >= MAX_OPEN_FILE_NUM) {
+                printf("Open file list is full\n");
+                return SYSERR;
+            }
+            if (get_inode_by_num(0, fsd.root_dir.entry[i].inode_num, &filelist[j].in) != OK) {
+                printf("Can not get inode\n");
+                return SYSERR;
+            }
+            filelist[j].state = flags;
+            return j;
         }
     }
     printf("Can not find the file\n");
