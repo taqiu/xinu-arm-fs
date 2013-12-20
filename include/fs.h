@@ -11,6 +11,7 @@
 #define INODE_BLOCK 2
 #define EMPTY_INODE -1
 #define INODE_SIZE 16
+#define MAX_OPEN_FILE_NUM 16
 
 struct inode {
   int id;

@@ -12,6 +12,7 @@ int dev0_numblocks;
 int dev0_blocksize;
 char *dev0_blocks;
 int dev0 = 0;
+struct fdesc filelist[];
 
 int mkbsdev(int dev, int blocksize, int numblocks) {
 
@@ -187,9 +188,19 @@ int fcreate(char *filename, int mode) {
         printf("file entry is full\n");
         return SYSERR;
     }
-
     
     return OK;
+}
+
+int fopen(char *filename, int flags) {
+    int i;
+    for (i = 0; i < DERECTORY_SIZE; i ++) {
+        if (strcmp(fsd.root_dir.entry[i].name, filename) == 0) {
+            return fsd.root_dir.entry[i].inode_num;
+        }
+    }
+    printf("Can not find the file\n");
+    return SYSERR;
 }
 
 void print_inodes() {
