@@ -9,6 +9,8 @@
 #define MDEV_NUM_BLOCKS 512
 
 #define INODE_BLOCK 2
+#define EMPTY_INODE -1
+#define INODE_SIZE 16
 
 struct inode {
   int id;
@@ -42,10 +44,10 @@ struct fsystem {
   struct directory root_dir;
 };
 
-int open(char *filename, int flags);
-int close(int fd);
-int creat(char *filename, int mode);
-int seek(int fd, int offset);
+int fopen(char *filename, int flags);
+int fclose(int fd);
+int fcreat(char *filename, int mode);
+int fseek(int fd, int offset);
 int fread(int fd, void *buf, int nbytes);
 int fwrite(int fd, void *buf, int nbytes);
 

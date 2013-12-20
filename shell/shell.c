@@ -92,7 +92,8 @@ const struct centry commandtab[] = {
     {"voip", FALSE, xsh_voip},
     {"xweb", FALSE, xsh_xweb},
 #endif
-    {"?", FALSE, xsh_help}
+    {"?", FALSE, xsh_help},
+    {"ftest", FALSE, xsh_fstest}
 };
 
 const ulong ncommand = sizeof(commandtab) / sizeof(struct centry);

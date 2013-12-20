@@ -67,6 +67,11 @@ int mkfs(int dev, int num_inodes) {
         return SYSERR;
     }
 
+    /* -1 the dirent */
+    for (i = 0; i < DIRECTORY_SIZE; i ++) {
+        fsd.root_dir.entry[i].inode_num = EMPTY_INODE;
+    }
+
     /* zero the free mask */
     for(i=0;i<fsd.freemaskbytes;i++) {
         fsd.freemask[i] = '\0';
@@ -103,7 +108,9 @@ int mkfs(int dev, int num_inodes) {
 
 int get_inode_by_num(int dev, int inode_number, struct inode *in) {
     int len = sizeof(struct inode);
-    if (bread(dev, INODE_BLOCK, len * inode_number, in, len) == SYSERR) {
+    int block_num = inode_number / 3;
+    int block_offset = inode_number % 3;
+    if (bread(dev, INODE_BLOCK + block_num, len * block_offset, in, len) == SYSERR) {
         printf("Can not read inode\n");
     }
 
@@ -112,15 +119,83 @@ int get_inode_by_num(int dev, int inode_number, struct inode *in) {
 
 int put_inode_by_num(int dev, int inode_number, struct inode *in) {
     int len = sizeof(struct inode);
-    if (bwrite(dev, INODE_BLOCK, len * inode_number, in, len) == SYSERR) {
-        printf("Can not read inode\n");
+    int block_num = inode_number / 3;
+    int block_offset = inode_number % 3;
+    if (bwrite(dev, INODE_BLOCK + block_num, len * block_offset, in, len) == SYSERR) {
+        printf("Can not wrtie inode\n");
+    } else {
+        setmaskbit(block_num);
     }
+    return OK;
+}
+
+int mount(int dev) {
+    int bm_blk = 0;
+    if (dev != 0) {
+        printf("Unsupported device\n");
+        return SYSERR;
+    }
+ 
+    if (bread(dev0, bm_blk, 0, &fsd, sizeof(struct fsystem)) == SYSERR) {
+        printf("Can not read file system block\n");
+        return SYSERR;
+    }
+
+    if (bread(dev0, bm_blk+1, 0, fsd.freemask, fsd.freemaskbytes) == SYSERR) {
+        printf("Can not read bit map\n");
+        return SYSERR;
+    }
+    return OK;
+}
+
+int fcreate(char *filename, int mode) {
+    int i, j;
+    int entry_index = -1;
+    int inode_index = -1;
+    struct inode in;
+    /* file name should not be empty */
+    if (strcmp(filename, "") == 0) {
+        printf("file name should not be empty\n");
+        return SYSERR;
+    }
+
+    for (i = 0; i < DIRECTORY_SIZE; i ++) {
+        if (fsd.root_dir.entry[i].inode_num == EMPTY_INODE) {
+            entry_index = i;
+            for (j = 0; j < INODE_SIZE; j ++) {
+                if (get_inode_by_num(0, j, &in) == OK && in.nlink == 0) {
+                    inode_index = j;
+                    break;
+                }
+            }
+            if (inode_index != -1) {
+                strcpy(fsd.root_dir.entry[i].name, filename);
+                fsd.root_dir.numentries ++;
+
+                fsd.root_dir.entry[i].inode_num = j;
+                in.nlink = 1;
+                put_inode_by_num(0, j, &in);
+                break;
+            } else {
+                entry_index = -1;
+            }
+        }
+    }
+
+    /* can not find empty inode */
+    if (inode_index == -1) {
+        printf("file entry is full\n");
+        return SYSERR;
+    }
+
+    
     return OK;
 }
 
 void print_inodes() {
     struct inode node;
     int i;
+    printf("Size of inode struct%d\n", sizeof(struct inode));
     for (i = 0; i < 16; i ++) {
         node.id = 1;
         get_inode_by_num(0, i, &node);
