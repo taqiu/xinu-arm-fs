@@ -262,6 +262,46 @@ int fseek(int fd, int offset) {
     return OK;
 }
 
+int fread(int fd, void *buff, int nbytes) {
+    int s_index, e_index, s_ptr, e_ptr, i;
+    int offset, len, bufptr;
+    if (!valid_fd(fd)) {
+        printf("Invalid file identifier\n");
+        return SYSERR;
+    }
+    if (filelist[fd].state == N_FILE) {
+        printf("File is not open\n");
+        return SYSERR;
+    }
+    if (filelist[fd].state & O_READ != O_READ) {
+        printf("File opened without read permission\n");
+        return SYSERR;
+    }
+    if (filelist[fd].fptr + nbytes > filelist[fd].in.size * fsd.blocksz) {
+        printf("File size is smaller than request\n");
+        return SYSERR;
+    }
+    // Start to read
+    s_ptr = filelist[fd].fptr;
+    e_ptr = filelist[fd].fptr + nbytes;
+    s_index = filelist[fd].fptr / fsd.blocksz;
+    e_index = (filelist[fd].fptr + nbytes) / fsd.blocksz;
+    bufptr = 0;
+    for (i = s_index; i <= e_index; i ++) {
+        offset = filelist[fd].fptr % fsd.blocksz;
+        if (i == e_index) len = e_ptr - offset;
+        else len = fsd.blocksz - offset;
+        if (bread(0, filelist[fd].in.blocks[i], offset, buff + bufptr, len) == SYSERR) {
+            printf("Failed to read block %d\n", filelist[fd].in.blocks[i]);
+            return SYSERR;
+        }
+        filelist[fd].fptr += len;
+        bufptr += len;
+    }
+
+    return OK;
+}
+
 void print_inodes() {
     struct inode node;
     int i;
