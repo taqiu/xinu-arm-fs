@@ -53,12 +53,141 @@ shellcmd xsh_fstest(int nargs, char *args[])
     mkfs(0, DIRECTORY_SIZE); /* bsdev 0*/
     //testbitmask();
     print_inodes(); // Test
+    mount(0);
+        
+    printf("run test case 1\n");
+    testcase1();
+    printf("run test case 2\n");
+    testcase2();
+    printf("run test case 3\n");
+    testcase3();
+    printf("run test case 4\n");
+    testcase4();
+
 #else
     printf("No filesystem support\n");
 #endif
 
     return OK;
 }
+
+// create new files
+void testcase1() {
+    int i;
+    char filename[10];
+
+    //  create 20 files
+    for (i = 0; i < 20; i++) {
+        filename[0] = 'f';
+        if ( i < 10 ) {
+            filename[1] = '0' + i;
+            filename[2] = '\0';
+        } else {
+            filename[1] = '1';
+            filename[2] = '0' + i - 10;
+            filename[3] = '\0';
+        }
+
+        if (fcreate(filename,0) == OK) {
+            printf("create file %s\n", filename);
+        } else {
+            printf("failed to create file %s\n", filename);
+        }
+    }    
+}
+
+// fopen and fclose files
+void testcase2() {
+    int i;
+    int fd;
+    char filename[10];
+
+    //  create 20 files
+    for (i = 0; i < 20; i+=2) {
+        filename[0] = 'f';
+        if ( i < 10 ) {
+            filename[1] = '0' + i;
+            filename[2] = '\0';
+        } else {
+            filename[1] = '1';
+            filename[2] = '0' + i - 10;
+            filename[3] = '\0';
+        }
+
+        if ((fd = fopen(filename,0)) > 0) {
+            printf("open file %s\n", filename);
+            if (fclose(fd) == OK) {
+                printf("close file %s\n", filename);
+            } else {
+                printf("failed to close file %s\n", filename);
+            }
+        } else {
+            printf("failed to open file %s\n", filename);
+        }
+    }    
+}
+
+// fread and fwrite files 
+void testcase3() {
+    int i, j;
+    int fd;
+    char filename[10];
+    char wbuf[10]="abcd1234";
+    char rbuf[10];
+
+    for (i = 0; i < 10; i+=2) {
+        filename[0] = 'f';
+        filename[1] = '0' + i;
+        filename[2] = '\0';
+
+        if ((fd = fopen(filename,0)) > 0) {
+            printf("open file %s, and start writing\n", filename);
+
+            for (j = 0; j < 100; j++) {
+                fwrite(fd, wbuf, 1);
+                fwrite(fd, wbuf, 8);
+                fwrite(fd, wbuf, 2);
+                fwrite(fd, wbuf, 7);
+                fwrite(fd, wbuf, 3);
+            }
+
+            if (fclose(fd) == OK) {
+                printf("close file %s\n", filename);
+            } else {
+                printf("failed to close file %s\n", filename);
+            }
+        } else {
+            printf("failed to open file %s\n", filename);
+        }
+
+        if ((fd = fopen(filename,0)) > 0) {
+            printf("open file %s, and start writing\n", filename);
+
+            for (j = 0; j < 100; j++) {
+                fread(fd, rbuf, 1);
+                fread(fd, rbuf, 8);
+                fread(fd, rbuf, 2);
+                fread(fd, rbuf, 7);
+                fread(fd, rbuf, 3);
+            }
+
+            if (fclose(fd) == OK) {
+                printf("close file %s\n", filename);
+            } else {
+                printf("failed to close file %s\n", filename);
+            }
+        } else {
+            printf("failed to open file %s\n", filename);
+        }
+    }    
+}
+
+// fseek
+void testcase4() {
+
+
+}
+
 
 void
 testbitmask(void) {
