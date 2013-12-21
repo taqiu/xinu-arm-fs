@@ -166,6 +166,14 @@ int fcreate(char *filename, int mode) {
         return SYSERR;
     }
 
+    /* check duplication of fiel name */
+    for (i = 0; i < DIRECTORY_SIZE; i ++) {
+        if (strcmp(fsd.root_dir.entry[i].name, filename) == 0) {
+            printf("file with the same name exists\n");
+            return SYSERR;
+        }
+    }
+
     for (i = 0; i < DIRECTORY_SIZE; i ++) {
         if (fsd.root_dir.entry[i].inode_num == EMPTY_INODE) {
             entry_index = i;
