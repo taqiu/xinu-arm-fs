@@ -1,7 +1,7 @@
 #ifndef FS_H
 #define FS_H
 
-#define FILENAMELEN 32
+#define FILENAMELEN 16
 #define FILEBLOCKS 32
 #define DIRECTORY_SIZE 16
 

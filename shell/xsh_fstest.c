@@ -114,7 +114,7 @@ void testcase2() {
             filename[3] = '\0';
         }
 
-        if ((fd = fopen(filename,0)) > 0) {
+        if ((fd = fopen(filename,0)) >= 0) {
             printf("open file %s\n", filename);
             if (fclose(fd) == OK) {
                 printf("close file %s\n", filename);
@@ -140,7 +140,7 @@ void testcase3() {
         filename[1] = '0' + i;
         filename[2] = '\0';
 
-        if ((fd = fopen(filename,0)) > 0) {
+        if ((fd = fopen(filename,0)) >= 0) {
             printf("open file %s, and start writing\n", filename);
 
             for (j = 0; j < 100; j++) {

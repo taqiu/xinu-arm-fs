@@ -50,7 +50,6 @@ int mkbsdev(int dev, int blocksize, int numblocks) {
 int mkfs(int dev, int num_inodes) {
     int i, j;
     int bm_blk = 0;
-    struct inode *inodes;
     struct inode in;
   
     if (dev == 0) {
@@ -81,11 +80,6 @@ int mkfs(int dev, int num_inodes) {
         fsd.freemask[i] = '\0';
     }
 
-    if ((inodes = memget(num_inodes*sizeof(struct inode))) == SYSERR) {
-        printf("mkfs inode memget failed.\n");
-        return SYSERR;
-    }    
-
     /* write the fsystem block to block 0, mark block used */
     setmaskbit(0);
     bwrite(dev0, bm_blk, 0, &fsd, sizeof(struct fsystem));
@@ -96,7 +90,7 @@ int mkfs(int dev, int num_inodes) {
 
    
     /* write inodes to filesystem */ 
-    for (i=0; i<num_inodes; i++) {
+    for (i=0; i< num_inodes; i++) {
         in.id = i;
         in.nlink = 0;
         in.device = dev0;
@@ -145,7 +139,7 @@ int mount(int dev) {
         return SYSERR;
     }
 
-    if (bread(dev0, bm_blk+1, 0, fsd.freemask, fsd.freemaskbytes) == SYSERR) {
+    if (bread(dev0, bm_blk + 1, 0, fsd.freemask, fsd.freemaskbytes) == SYSERR) {
         printf("Can not read bit map\n");
         return SYSERR;
     }
@@ -158,8 +152,6 @@ int mount(int dev) {
 
 int fcreate(char *filename, int mode) {
     int i, j;
-    int entry_index = -1;
-    int inode_index = -1;
     struct inode in;
     /* file name should not be empty */
     if (strcmp(filename, "") == 0) {
@@ -177,14 +169,12 @@ int fcreate(char *filename, int mode) {
 
     for (i = 0; i < DIRECTORY_SIZE; i ++) {
         if (fsd.root_dir.entry[i].inode_num == EMPTY_INODE) {
-            entry_index = i;
             for (j = 0; j < INODE_SIZE; j ++) {
                 if (get_inode_by_num(0, j, &in) == OK && in.nlink == 0) {
-                    inode_index = j;
                     break;
                 }
             }
-            if (inode_index != -1) {
+            if (j < INODE_SIZE) {
                 strncpy(fsd.root_dir.entry[i].name, filename, strnlen(filename, FILENAMELEN + 1));
                 fsd.root_dir.numentries ++;
 
@@ -193,13 +183,14 @@ int fcreate(char *filename, int mode) {
                 put_inode_by_num(0, j, &in);
                 break;
             } else {
-                entry_index = -1;
+                printf("can not find empty inode\n");
+                return SYSERR;
             }
         }
     }
 
-    /* can not find empty inode */
-    if (inode_index == -1) {
+    /* can not find empty entry */
+    if (i >= INODE_SIZE) {
         printf("file entry is full\n");
         return SYSERR;
     }
