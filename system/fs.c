@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <bufpool.h>
+#include <string.h>
 
 #if FS
 #include <fs.h>
@@ -184,7 +185,7 @@ int fcreate(char *filename, int mode) {
                 }
             }
             if (inode_index != -1) {
-                strcpy(fsd.root_dir.entry[i].name, filename);
+                strncpy(fsd.root_dir.entry[i].name, filename, strnlen(filename, FILENAMELEN + 1));
                 fsd.root_dir.numentries ++;
 
                 fsd.root_dir.entry[i].inode_num = j;
@@ -297,7 +298,7 @@ int fread(int fd, void *buff, int nbytes) {
     bufptr = 0;
     for (i = s_index; i <= e_index; i ++) {
         offset = filelist[fd].fptr % fsd.blocksz;
-        if (i == e_index) len = e_ptr - offset;
+        if (i == e_index) len = e_ptr % fsd.blocksz - offset;
         else len = fsd.blocksz - offset;
         if (bread(0, filelist[fd].in.blocks[i], offset, buff + bufptr, len) == SYSERR) {
             printf("Failed to read block %d\n", filelist[fd].in.blocks[i]);
@@ -333,7 +334,7 @@ int fwrite(int fd, void *buf, int nbytes) {
     bufptr = 0;
     for (i = s_index; i <= e_index; i ++) {
         offset = filelist[fd].fptr % fsd.blocksz;
-        if (i == e_index) len = e_ptr - offset;
+        if (i == e_index) len = e_ptr % fsd.blocksz - offset;
         else len = fsd.blocksz - offset;
         if (i < filelist[fd].in.size) {
             // Overwrite
@@ -364,6 +365,19 @@ int get_free_block() {
         if (getmaskbit(i) == 1) return i;
     }
     return SYSERR;
+}
+
+int strcmp(char *str1, char *str2) {
+    int len1 = strnlen(str1, FILENAMELEN + 1);
+    int len2 = strnlen(str2, FILENAMELEN + 1);
+    if (len1 != len2) {
+        return -1;
+    }
+    if (strncmp(str1, str2, len1) == 0) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 void print_inodes() {

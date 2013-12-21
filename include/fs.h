@@ -79,5 +79,5 @@ int put_inode_by_num(int dev, int inode_number, struct inode *in);
 /* test & help functions*/
 void print_inodes();
 int get_free_block();
-
+int strcmp(char *str1, char *str2);
 #endif /* FS_H */
