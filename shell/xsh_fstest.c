@@ -181,8 +181,8 @@ void testcase4() {
     int i;
     int fd;
     char buf[100];
-
-    if ((fd = open("f0", 0)) == OK) {
+    char *filename = "f0";
+    if ((fd = fopen(filename, O_READ)) == OK) {
         printf("open file %s\n", filename);
         if (fseek(fd, 510) != OK)
             printf("failed to seek\n");
