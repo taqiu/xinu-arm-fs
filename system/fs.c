@@ -348,6 +348,7 @@ int fwrite(int fd, void *buf, int nbytes) {
             filelist[fd].in.size ++;
         }
     }
+    return OK;
 }
 
 int get_free_block() {
