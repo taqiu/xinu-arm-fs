@@ -140,15 +140,12 @@ void testcase3() {
         filename[1] = '0' + i;
         filename[2] = '\0';
 
-        if ((fd = fopen(filename,0)) >= 0) {
+        if ((fd = fopen(filename,O_WRITE)) >= 0) {
             printf("open file %s, and start writing\n", filename);
 
             for (j = 0; j < 100; j++) {
-                fwrite(fd, wbuf, 1);
-                fwrite(fd, wbuf, 8);
-                fwrite(fd, wbuf, 2);
-                fwrite(fd, wbuf, 7);
-                fwrite(fd, wbuf, 3);
+                if(fwrite(fd, wbuf, 7) != OK) 
+                    printf("failed to write file %s\n", filename);
             }
 
             if (fclose(fd) == OK) {
@@ -160,15 +157,12 @@ void testcase3() {
             printf("failed to open file %s\n", filename);
         }
 
-        if ((fd = fopen(filename,0)) > 0) {
+        if ((fd = fopen(filename,O_READ)) > 0) {
             printf("open file %s, and start writing\n", filename);
 
             for (j = 0; j < 100; j++) {
-                fread(fd, rbuf, 1);
-                fread(fd, rbuf, 8);
-                fread(fd, rbuf, 2);
-                fread(fd, rbuf, 7);
-                fread(fd, rbuf, 3);
+                if(fread(fd, rbuf, 7) != OK)
+                    printf("failed to read file %s\n", filename);
             }
 
             if (fclose(fd) == OK) {
@@ -184,7 +178,20 @@ void testcase3() {
 
 // fseek
 void testcase4() {
+    int i;
+    int fd;
+    char buf[100];
 
+    if ((fd = open("f0", 0)) == OK) {
+        printf("open file %s\n", filename);
+        if (fseek(fd, 510) != OK)
+            printf("failed to seek\n");
+        
+        if (fread(fd, buf, 50) != OK)
+            printf("failed to read file %s\n", filename);
+        else 
+            printf("%s", buf);
+    }
 
 }
 
